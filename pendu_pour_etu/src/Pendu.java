@@ -12,7 +12,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.Region;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar.ButtonData ;
@@ -21,6 +20,8 @@ import java.util.List;
 import java.util.Arrays;
 import java.io.File;
 import java.util.ArrayList;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 
 
 /**
@@ -77,6 +78,8 @@ public class Pendu extends Application {
      * le bouton Accueil / Maison
      */    
     private Button boutonMaison;
+
+    private Button boutonInformation;
     /**
      * le bouton qui permet de (lancer ou relancer une partie
      */ 
@@ -108,7 +111,35 @@ public class Pendu extends Application {
      */
     private Pane titre(){
         // A implementer          
-        Pane banniere = new Pane();
+        BorderPane banniere = new BorderPane();
+        Text leTexte=new Text("Jeu Du Pendu");
+        ImageView imgInfo=new ImageView(new Image(new File("img/info.png").toURI().toString()));    //permet de charger une image
+        imgInfo.setFitHeight(50);imgInfo.setFitWidth(50);                                           // pemet de changer la largeur et hauteur de l'image
+
+        ImageView imgParametres=new ImageView(new Image(new File("img/parametres.png").toURI().toString()));
+        imgParametres.setFitHeight(50);imgParametres.setFitWidth(50);
+
+        ImageView imgHome=new ImageView(new Image(new File("img/home.png").toURI().toString()));
+        imgHome.setFitHeight(50);imgHome.setFitWidth(50);
+
+        this.boutonMaison=new Button();
+        this.boutonMaison.setGraphic(imgHome);
+     //   this.boutonMaison.setScaleX(1);this.boutonMaison.setScaleY(1);
+        this.boutonParametres=new Button("");
+        this.boutonParametres.setGraphic(imgParametres);
+       // this.boutonParametres.setScaleX(1);this.boutonParametres.setScaleY(1);
+
+        this.boutonInformation=new Button();
+        this.boutonInformation.setGraphic(imgInfo);
+        //this.boutonInformation.setScaleX(1);this.boutonInformation.setScaleY(1);
+
+        HBox hboxboutons=new HBox();
+        hboxboutons.getChildren().addAll(boutonMaison,boutonParametres,boutonInformation);
+        hboxboutons.setSpacing(10);
+        banniere.setLeft(leTexte);
+        banniere.setRight(hboxboutons);
+        banniere.setPadding(new Insets(10));
+        banniere.setBackground(new Background(new BackgroundFill(Color.LIGHTCYAN,null,null)));      //permet de changer la couleur du fond de notre border pane.
         return banniere;
     }
 
@@ -134,11 +165,15 @@ public class Pendu extends Application {
     // /**
      // * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
      // */
-    // private Pane fenetreAccueil(){
-        // A implementer    
-        // Pane res = new Pane();
-        // return res;
-    // }
+    //private BorderPane fenetreAccueil(){
+    //    //A implementer    
+    //    BorderPane root= new BorderPane();
+    //    Pane res = new Pane();
+    //    res.getChildren().add(titre());
+    //    root.setCenter(res);
+    //    
+    //    return root;
+    //}
 
     /**
      * charge les images à afficher en fonction des erreurs
