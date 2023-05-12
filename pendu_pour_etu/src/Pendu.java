@@ -187,6 +187,9 @@ public class Pendu extends Application {
         }
     }
 
+    /**
+     *  Pemet de modifier le panel central de la page d'accueil
+     */
     public void modeAccueil(){
         // A implementer
     }
