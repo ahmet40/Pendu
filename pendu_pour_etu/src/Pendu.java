@@ -10,18 +10,16 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TitledPane;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar.ButtonData ;
-import javafx.scene.control.ButtonType ;
+
 import java.util.List;
+
+import javax.tools.Tool;
+
 import java.util.Arrays;
 import java.io.File;
 import java.util.ArrayList;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 
 
 /**
@@ -69,7 +67,7 @@ public class Pendu extends Application {
     /**
      * le panel Central qui pourra être modifié selon le mode (accueil ou jeu)
      */
-    private BorderPane panelCentral;
+    private VBox panelCentral;
     /**
      * le bouton Paramètre / Engrenage
      */
@@ -81,7 +79,7 @@ public class Pendu extends Application {
 
     private Button boutonInformation;
     /**
-     * le bouton qui permet de (lancer ou relancer une partie
+     * le bouton qui permet de (lancer ou relancer une partie)
      */ 
     private Button bJouer;
 
@@ -100,9 +98,11 @@ public class Pendu extends Application {
      * @return  le graphe de scène de la vue à partir de methodes précédantes
      */
     private Scene laScene(){
+        modeAccueil();
         BorderPane fenetre = new BorderPane();
         fenetre.setTop(this.titre());
         fenetre.setCenter(this.panelCentral);
+        System.out.println(fenetre.getCenter());
         return new Scene(fenetre, 800, 1000);
     }
 
@@ -191,7 +191,31 @@ public class Pendu extends Application {
      *  Pemet de modifier le panel central de la page d'accueil
      */
     public void modeAccueil(){
-        // A implementer
+        this.panelCentral=new VBox();
+        this.bJouer=new Button("Lancer une partie");
+        //this.bJouer.setOnAction(new ControleurLancerPartie(modelePendu, null));    //à completer
+        this.panelCentral.getChildren().add(this.bJouer);
+        VBox.setMargin(this.bJouer, new Insets(15));                      // permet de donner une marge à notre bouton
+        
+        ToggleGroup toogle= new ToggleGroup();    
+        RadioButton radio1=new RadioButton("Facile");
+        RadioButton radio2=new RadioButton("Moyen");
+        RadioButton radio3=new RadioButton("Difficile");
+        RadioButton radio4=new RadioButton("Expert");
+        // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
+        radio1.setToggleGroup(toogle);radio2.setToggleGroup(toogle);radio3.setToggleGroup(toogle);radio4.setToggleGroup(toogle);  
+        
+        
+        VBox v= new VBox();
+        v.getChildren().addAll(radio1,radio2,radio3,radio4);
+        TitledPane conteneur=new TitledPane("Niveau de jeu",v);
+        
+        this.panelCentral.getChildren().add(conteneur);
+        VBox.setMargin(conteneur, new Insets(15));
+        
+        
+
+        
     }
     
     public void modeJeu(){
@@ -253,6 +277,7 @@ public class Pendu extends Application {
      */
     @Override
     public void start(Stage stage) {
+        
         stage.setTitle("IUTEAM'S - La plateforme de jeux de l'IUTO");
         stage.setScene(this.laScene());
         this.modeAccueil();
