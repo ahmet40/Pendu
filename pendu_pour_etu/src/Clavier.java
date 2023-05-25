@@ -26,7 +26,16 @@ public class Clavier extends TilePane{
      * @param tailleLigne nombre de touches par ligne
      */
     public Clavier(String touches, EventHandler<ActionEvent> actionTouches) {
-        // A implémenter
+        this.clavier=new ArrayList<>();
+        for (int i=0;i<touches.length();++i){
+            Button b=new Button( String.valueOf(touches.charAt(i)));
+            b.setPrefWidth(30);
+            //b.setLayoutY(30);
+            b.setOnAction(actionTouches);
+            clavier.add(b);
+            b.setStyle("-fx-background-radius:60%");
+        }
+        this.getChildren().addAll(clavier);
     }
 
     /**

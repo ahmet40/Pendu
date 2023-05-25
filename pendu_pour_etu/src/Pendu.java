@@ -83,6 +83,12 @@ public class Pendu extends Application {
      */ 
     private Button bJouer;
 
+    private double width;
+
+    private RadioButton radio1; 
+    private RadioButton radio2; 
+    private RadioButton radio3; 
+    private RadioButton radio4; 
     /**
      * initialise les attributs (créer le modèle, charge les images, crée le chrono ...)
      */
@@ -91,7 +97,8 @@ public class Pendu extends Application {
         this.modelePendu = new MotMystere("/usr/share/dict/french", 3, 10, MotMystere.FACILE, 10);
         this.lesImages = new ArrayList<Image>();
         this.chargerImages("./img");
-        // A terminer d'implementer
+        this.panelCentral=new VBox();
+        this.motCrypte= new Text(this.modelePendu.getMotCrypte());
     }
 
     /**
@@ -103,7 +110,8 @@ public class Pendu extends Application {
         fenetre.setTop(this.titre());
         fenetre.setCenter(this.panelCentral);
         System.out.println(fenetre.getCenter());
-        return new Scene(fenetre, 800, 1000);
+        width =800;
+        return new Scene(fenetre, width, 1000);
     }
 
     /**
@@ -124,6 +132,7 @@ public class Pendu extends Application {
 
         this.boutonMaison=new Button();
         this.boutonMaison.setGraphic(imgHome);
+        this.boutonMaison.setOnAction(new RetourAccueil(modelePendu, this));
      //   this.boutonMaison.setScaleX(1);this.boutonMaison.setScaleY(1);
         this.boutonParametres=new Button("");
         this.boutonParametres.setGraphic(imgParametres);
@@ -143,37 +152,79 @@ public class Pendu extends Application {
         return banniere;
     }
 
-    // /**
-     // * @return le panel du chronomètre
-     // */
-    // private TitledPane leChrono(){
-        // A implementer
-        // TitledPane res = new TitledPane();
-        // return res;
-    // }
+     /**
+    / * @return le panel du chronomètre
+    / */
+     private TitledPane leChrono(){
+        this.chrono=new Chronometre();
+        TitledPane res = new TitledPane("Chronometre",chrono);
+        return res;
+    }
+     /**
+    / * @return la fenêtre de jeu avec le mot crypté, l'image, la barre
+    / *         de progression et le clavier
+    / */
+     private BorderPane fenetreJeu(){
+        BorderPane res = new BorderPane();
+        VBox left=new VBox();
+        left.getChildren().add(motCrypte);
+        this.dessin=new ImageView(new Image(new File("img/pendu0.png").toURI().toString()));
+        left.getChildren().add(this.dessin);
+        this.pg=new ProgressBar(0);
+        left.getChildren().add(pg);
+        this.clavier=new Clavier("ABCDEFGHIJKLMNOPQRSTUVWXYZ-",new ControleurLettres(modelePendu, this));
+        left.getChildren().add(clavier);
+        left.setPadding(new Insets(30));
+        VBox.setMargin(left,new Insets(20));
+    
+        VBox right=new VBox();
+        this.leNiveau=new Text("Niveau "+ getDifText());
+        right.getChildren().addAll(leNiveau,leChrono());
+        right.setPadding(new Insets(100));
+        //VBox.setMargin(right,new Insets(400));
+        right.setSpacing(20);
+        
 
-    // /**
-     // * @return la fenêtre de jeu avec le mot crypté, l'image, la barre
-     // *         de progression et le clavier
-     // */
-    // private Pane fenetreJeu(){
-        // A implementer
-        // Pane res = new Pane();
-        // return res;
-    // }
 
-    // /**
-     // * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
-     // */
-    //private BorderPane fenetreAccueil(){
-    //    //A implementer    
-    //    BorderPane root= new BorderPane();
-    //    Pane res = new Pane();
-    //    res.getChildren().add(titre());
-    //    root.setCenter(res);
-    //    
-    //    return root;
-    //}
+        res.setLeft(left);
+        res.setRight(right);
+        return res;
+    } 
+     /**
+    / * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
+    / */
+    private Pane fenetreAccueil(){  
+        Pane res = new Pane();
+
+        VBox maVbox=new VBox();
+        this.bJouer=new Button("Lancer une partie");
+        this.bJouer.setOnAction(new ControleurLancerPartie(modelePendu, this));    //à completer
+        maVbox.getChildren().add(this.bJouer);
+        VBox.setMargin(this.bJouer, new Insets(15));                      // permet de donner une marge à notre bouton
+        
+        ToggleGroup toogle= new ToggleGroup();    
+        this.radio1=new RadioButton("Facile");
+        this.radio2=new RadioButton("Moyen");
+        this.radio3=new RadioButton("Difficile");
+        this.radio4=new RadioButton("Expert");
+        // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
+        radio1.setToggleGroup(toogle);radio2.setToggleGroup(toogle);radio3.setToggleGroup(toogle);radio4.setToggleGroup(toogle);
+        
+        
+        VBox conteneurNiveau= new VBox();
+        conteneurNiveau.getChildren().addAll(radio1,radio2,radio3,radio4);
+        TitledPane conteneur=new TitledPane("Niveau de jeu",conteneurNiveau);
+        conteneurNiveau.setPrefWidth(width-50);
+        maVbox.getChildren().add(conteneur);
+        VBox.setMargin(conteneur, new Insets(15));
+        res.getChildren().add(maVbox);
+        return res;
+    }
+
+
+    private String getDifText(){
+        return this.radio1.isSelected() ? "FACILE" : this.radio2.isSelected() ? "Moyen" : this.radio3.isSelected() ? "diffcile" : "Expert" ;
+    }
 
     /**
      * charge les images à afficher en fonction des erreurs
@@ -191,31 +242,8 @@ public class Pendu extends Application {
      *  Pemet de modifier le panel central de la page d'accueil
      */
     public void modeAccueil(){
-        this.panelCentral=new VBox();
-        this.bJouer=new Button("Lancer une partie");
-        //this.bJouer.setOnAction(new ControleurLancerPartie(modelePendu, null));    //à completer
-        this.panelCentral.getChildren().add(this.bJouer);
-        VBox.setMargin(this.bJouer, new Insets(15));                      // permet de donner une marge à notre bouton
-        
-        ToggleGroup toogle= new ToggleGroup();    
-        RadioButton radio1=new RadioButton("Facile");
-        RadioButton radio2=new RadioButton("Moyen");
-        RadioButton radio3=new RadioButton("Difficile");
-        RadioButton radio4=new RadioButton("Expert");
-        // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
-        radio1.setToggleGroup(toogle);radio2.setToggleGroup(toogle);radio3.setToggleGroup(toogle);radio4.setToggleGroup(toogle);  
-        
-        
-        VBox v= new VBox();
-        v.getChildren().addAll(radio1,radio2,radio3,radio4);
-        TitledPane conteneur=new TitledPane("Niveau de jeu",v);
-        
-        this.panelCentral.getChildren().add(conteneur);
-        VBox.setMargin(conteneur, new Insets(15));
-        
-        
-
-        
+        this.panelCentral.getChildren().clear();
+        this.panelCentral.getChildren().add(fenetreAccueil());
     }
     
     public void modeJeu(){
@@ -228,7 +256,10 @@ public class Pendu extends Application {
 
     /** lance une partie */
     public void lancePartie(){
-        // A implementer
+
+        this.panelCentral.getChildren().clear();
+        System.out.println("njn"+this.panelCentral.getChildren());
+        this.panelCentral.getChildren().add(fenetreJeu());
     }
 
     /**
