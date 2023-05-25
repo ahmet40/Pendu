@@ -30,10 +30,12 @@ public class Clavier extends TilePane{
         for (int i=0;i<touches.length();++i){
             Button b=new Button( String.valueOf(touches.charAt(i)));
             b.setPrefWidth(30);
-            //b.setLayoutY(30);
             b.setOnAction(actionTouches);
-            clavier.add(b);
             b.setStyle("-fx-background-radius:60%");
+            b.setOnAction(actionTouches);
+
+
+            clavier.add(b);
         }
         this.getChildren().addAll(clavier);
     }

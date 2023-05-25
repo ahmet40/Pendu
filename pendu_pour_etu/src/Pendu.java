@@ -85,10 +85,10 @@ public class Pendu extends Application {
 
     private double width;
 
-    private RadioButton radio1; 
-    private RadioButton radio2; 
-    private RadioButton radio3; 
-    private RadioButton radio4; 
+    private RadioButton radio1Niveau; 
+    private RadioButton radio2Niveau; 
+    private RadioButton radio3Niveau; 
+    private RadioButton radio4Niveau; 
     /**
      * initialise les attributs (créer le modèle, charge les images, crée le chrono ...)
      */
@@ -117,8 +117,7 @@ public class Pendu extends Application {
     /**
      * @return le panel contenant le titre du jeu
      */
-    private Pane titre(){
-        // A implementer          
+    private Pane titre(){        
         BorderPane banniere = new BorderPane();
         Text leTexte=new Text("Jeu Du Pendu");
         ImageView imgInfo=new ImageView(new Image(new File("img/info.png").toURI().toString()));    //permet de charger une image
@@ -203,16 +202,16 @@ public class Pendu extends Application {
         VBox.setMargin(this.bJouer, new Insets(15));                      // permet de donner une marge à notre bouton
         
         ToggleGroup toogle= new ToggleGroup();    
-        this.radio1=new RadioButton("Facile");
-        this.radio2=new RadioButton("Moyen");
-        this.radio3=new RadioButton("Difficile");
-        this.radio4=new RadioButton("Expert");
+        this.radio1Niveau=new RadioButton("Facile");
+        this.radio2Niveau=new RadioButton("Moyen");
+        this.radio3Niveau=new RadioButton("Difficile");
+        this.radio4Niveau=new RadioButton("Expert");
         // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
-        radio1.setToggleGroup(toogle);radio2.setToggleGroup(toogle);radio3.setToggleGroup(toogle);radio4.setToggleGroup(toogle);
+        radio1Niveau.setToggleGroup(toogle);radio2Niveau.setToggleGroup(toogle);radio3Niveau.setToggleGroup(toogle);radio4Niveau.setToggleGroup(toogle);
         
         
         VBox conteneurNiveau= new VBox();
-        conteneurNiveau.getChildren().addAll(radio1,radio2,radio3,radio4);
+        conteneurNiveau.getChildren().addAll(radio1Niveau,radio2Niveau,radio3Niveau,radio4Niveau);
         TitledPane conteneur=new TitledPane("Niveau de jeu",conteneurNiveau);
         conteneurNiveau.setPrefWidth(width-50);
         maVbox.getChildren().add(conteneur);
@@ -223,7 +222,7 @@ public class Pendu extends Application {
 
 
     private String getDifText(){
-        return this.radio1.isSelected() ? "FACILE" : this.radio2.isSelected() ? "Moyen" : this.radio3.isSelected() ? "diffcile" : "Expert" ;
+        return this.radio1Niveau.isSelected() ? "FACILE" : this.radio2Niveau.isSelected() ? "Moyen" : this.radio3Niveau.isSelected() ? "diffcile" : "Expert" ;
     }
 
     /**
@@ -258,7 +257,7 @@ public class Pendu extends Application {
     public void lancePartie(){
 
         this.panelCentral.getChildren().clear();
-        System.out.println("njn"+this.panelCentral.getChildren());
+        //System.out.println("njn"+this.panelCentral.getChildren());
         this.panelCentral.getChildren().add(fenetreJeu());
     }
 
