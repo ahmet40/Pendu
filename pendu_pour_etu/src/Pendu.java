@@ -96,9 +96,10 @@ public class Pendu extends Application {
     public void init() {
         this.modelePendu = new MotMystere("/usr/share/dict/french", 3, 10, MotMystere.FACILE, 10);
         this.lesImages = new ArrayList<Image>();
-        this.chargerImages("./img");
+        //this.chargerImages("./img");
         this.panelCentral=new VBox();
         this.motCrypte= new Text(this.modelePendu.getMotCrypte());
+        this.chargerImages("img");
     }
 
     /**
@@ -111,7 +112,7 @@ public class Pendu extends Application {
         fenetre.setCenter(this.panelCentral);
         System.out.println(fenetre.getCenter());
         width =800;
-        return new Scene(fenetre, width, 1000);
+        return new Scene(fenetre, width, 800);
     }
 
     /**
@@ -167,7 +168,7 @@ public class Pendu extends Application {
         BorderPane res = new BorderPane();
         VBox left=new VBox();
         left.getChildren().add(motCrypte);
-        this.dessin=new ImageView(new Image(new File("img/pendu0.png").toURI().toString()));
+        this.dessin=new ImageView(this.lesImages.get(0));
         left.getChildren().add(this.dessin);
         this.pg=new ProgressBar(0);
         left.getChildren().add(pg);
@@ -189,6 +190,9 @@ public class Pendu extends Application {
         res.setRight(right);
         return res;
     } 
+    public void changerImage(){
+        this.dessin.setImage(lesImages.get(modelePendu.getNbErreursMax()-modelePendu.getNbErreursRestants()));
+    }
      /**
     / * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
     / */
@@ -208,7 +212,10 @@ public class Pendu extends Application {
         this.radio4Niveau=new RadioButton("Expert");
         // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
         radio1Niveau.setToggleGroup(toogle);radio2Niveau.setToggleGroup(toogle);radio3Niveau.setToggleGroup(toogle);radio4Niveau.setToggleGroup(toogle);
-        
+        //radio1Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        //radio2Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        //radio3Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        //radio4Niveau.setOnAction(new ControleurNiveau(modelePendu));
         
         VBox conteneurNiveau= new VBox();
         conteneurNiveau.getChildren().addAll(radio1Niveau,radio2Niveau,radio3Niveau,radio4Niveau);
@@ -246,7 +253,9 @@ public class Pendu extends Application {
     }
     
     public void modeJeu(){
-        // A implementer
+        this.panelCentral.getChildren().clear();
+        //System.out.println("njn"+this.panelCentral.getChildren());
+        this.panelCentral.getChildren().add(fenetreJeu());
     }
     
     public void modeParametres(){
@@ -255,17 +264,20 @@ public class Pendu extends Application {
 
     /** lance une partie */
     public void lancePartie(){
-
-        this.panelCentral.getChildren().clear();
-        //System.out.println("njn"+this.panelCentral.getChildren());
-        this.panelCentral.getChildren().add(fenetreJeu());
+        this.modeJeu();
     }
 
     /**
      * raffraichit l'affichage selon les données du modèle
      */
     public void majAffichage(){
-        // A implementer
+        this.clavier.desactiveTouches(this.modelePendu.getLettresEssayees());
+        //this.modelePendu.maj
+        System.out.println(this.modelePendu.getMotATrouve());
+        this.motCrypte.setText((this.modelePendu.getMotCrypte()));
+        
+        if (this.modelePendu.gagne()){this.popUpMessageGagne().showAndWait();}
+        else if(this.modelePendu.perdu()){this.popUpMessagePerdu().showAndWait();}
     }
 
     /**
@@ -291,13 +303,13 @@ public class Pendu extends Application {
     
     public Alert popUpMessageGagne(){
         // A implementer
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de trouver le mot \n voulez-vous un nouveaux mot ?",ButtonType.YES, ButtonType.NO);        
         return alert;
     }
     
     public Alert popUpMessagePerdu(){
         // A implementer    
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de perdre le mot était : "+this.modelePendu.getMotATrouve() + " \n voulez-vous un nouveaux mot ?",ButtonType.YES, ButtonType.NO);
         return alert;
     }
 

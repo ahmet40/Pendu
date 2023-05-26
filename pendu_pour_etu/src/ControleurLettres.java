@@ -33,10 +33,12 @@ public class ControleurLettres implements EventHandler<ActionEvent> {
      */
     @Override
     public void handle(ActionEvent actionEvent) {
-        //System.out.println(("c,rezkjaic,jekzdsqjficke,dzs"));
         Button boutonClique = (Button) actionEvent.getSource();
         String texteBouton = boutonClique.getText();
         System.out.println(texteBouton.charAt(0));
-        this.modelePendu.essaiLettre(texteBouton.charAt(0));
+        int i=this.modelePendu.essaiLettre(texteBouton.charAt(0));
+        if (i==0){this.vuePendu.changerImage();}
+        this.vuePendu.majAffichage();
+
     }
 }
