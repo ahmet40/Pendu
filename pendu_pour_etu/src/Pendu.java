@@ -295,11 +295,21 @@ public class Pendu extends Application {
         this.motCrypte.setText((this.modelePendu.getMotCrypte()));
 
         double totalLettre = this.modelePendu.getMotATrouve().length();
-        double lettreTrouve = totalLettre - this.modelePendu.getNbErreursRestants();
+        double lettreTrouve =  this.modelePendu.getNbErreursRestants()-totalLettre ;
         this.pg.setProgress(lettreTrouve / totalLettre);
         
-        if (this.modelePendu.gagne()){this.popUpMessageGagne().showAndWait();}
-        else if(this.modelePendu.perdu()){this.popUpMessagePerdu().showAndWait();}
+        if (this.modelePendu.gagne()){
+            this.popUpMessageGagne().showAndWait();             // va activer la pop-up et va attendre une action du joueur
+            for (Button b:this.clavier.getClavier()){           // va desactiver toutes les touches du clavier jusqu'au nv mot
+                b.setDisable(true);
+            }
+        }
+        else if(this.modelePendu.perdu()){
+            this.popUpMessagePerdu().showAndWait();
+            for (Button b:this.clavier.getClavier()){
+                    b.setDisable(true);
+            }
+        }
     }
 
     /**

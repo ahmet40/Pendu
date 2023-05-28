@@ -51,4 +51,12 @@ public class Clavier extends TilePane{
             }
         }
     }
+
+    /**
+     * Permet de retourner le clavier 
+     * @return le clavier
+     */
+    public List<Button> getClavier() {
+        return clavier;
+    }
 }
