@@ -83,8 +83,14 @@ public class Pendu extends Application {
      */ 
     private Button bJouer;
 
+    /**
+     * Donne la largeur de l'ecran de jeu
+     */
     private double width;
 
+    /**
+     * Les quatres boutons radio de niveau
+     */
     private RadioButton radio1Niveau; 
     private RadioButton radio2Niveau; 
     private RadioButton radio3Niveau; 
@@ -98,7 +104,7 @@ public class Pendu extends Application {
         this.lesImages = new ArrayList<Image>();
         //this.chargerImages("./img");
         this.panelCentral=new VBox();
-        this.motCrypte= new Text(this.modelePendu.getMotCrypte());
+        
         this.chargerImages("img");
     }
 
@@ -131,16 +137,16 @@ public class Pendu extends Application {
         imgHome.setFitHeight(50);imgHome.setFitWidth(50);
 
         this.boutonMaison=new Button();
-        this.boutonMaison.setGraphic(imgHome);
+        this.boutonMaison.setGraphic(imgHome);                                      // affect au bouton une image
         this.boutonMaison.setOnAction(new RetourAccueil(modelePendu, this));
-     //   this.boutonMaison.setScaleX(1);this.boutonMaison.setScaleY(1);
+
         this.boutonParametres=new Button("");
         this.boutonParametres.setGraphic(imgParametres);
-       // this.boutonParametres.setScaleX(1);this.boutonParametres.setScaleY(1);
 
         this.boutonInformation=new Button();
         this.boutonInformation.setGraphic(imgInfo);
-        //this.boutonInformation.setScaleX(1);this.boutonInformation.setScaleY(1);
+        this.boutonInformation.setOnAction(new ControleurInfos(this));
+
 
         HBox hboxboutons=new HBox();
         hboxboutons.getChildren().addAll(boutonMaison,boutonParametres,boutonInformation);
@@ -152,11 +158,12 @@ public class Pendu extends Application {
         return banniere;
     }
 
-     /**
+    /**
     / * @return le panel du chronomètre
     / */
-     private TitledPane leChrono(){
+    private TitledPane leChrono(){
         this.chrono=new Chronometre();
+        this.chrono.start();
         TitledPane res = new TitledPane("Chronometre",chrono);
         return res;
     }
@@ -165,23 +172,31 @@ public class Pendu extends Application {
     / *         de progression et le clavier
     / */
      private BorderPane fenetreJeu(){
+        this.motCrypte= new Text(this.modelePendu.getMotCrypte());
         BorderPane res = new BorderPane();
         VBox left=new VBox();
+        left.setAlignment(Pos.CENTER);                              // va me permettre de centrer le mot et la pg
         left.getChildren().add(motCrypte);
         this.dessin=new ImageView(this.lesImages.get(0));
         left.getChildren().add(this.dessin);
         this.pg=new ProgressBar(0);
         left.getChildren().add(pg);
-        this.clavier=new Clavier("ABCDEFGHIJKLMNOPQRSTUVWXYZ-",new ControleurLettres(modelePendu, this));
-        left.getChildren().add(clavier);
-        left.setPadding(new Insets(30));
-        VBox.setMargin(left,new Insets(20));
+        this.clavier=new Clavier("ABCDEFGHIJKLMNOPQRSTUVWXYZ-",new ControleurLettres(modelePendu, this));       // cree le clavier
+        left.getChildren().add(clavier);                
+        left.setSpacing(8);                                 // permet d'espacer les element de la vbox
+        left.setPadding(new Insets(30));                
+
     
+
+
+
         VBox right=new VBox();
-        this.leNiveau=new Text("Niveau "+ getDifText());
-        right.getChildren().addAll(leNiveau,leChrono());
+        this.leNiveau=new Text("Niveau "+ getDifText());                // text indiquant le niveau de jeu
+        Button nvMot=new Button("Nouveau mot");                         // un bouton qui permet de joueur avec un nouveau mot
+        nvMot.setOnAction(new ControlleurRejouer(modelePendu, this));           //associe un controleur a ce bouton
+        right.getChildren().addAll(leNiveau,leChrono(),nvMot);              // permet d'avoir le chrono
+
         right.setPadding(new Insets(100));
-        //VBox.setMargin(right,new Insets(400));
         right.setSpacing(20);
         
 
@@ -190,6 +205,8 @@ public class Pendu extends Application {
         res.setRight(right);
         return res;
     } 
+
+
     public void changerImage(){
         this.dessin.setImage(lesImages.get(modelePendu.getNbErreursMax()-modelePendu.getNbErreursRestants()));
     }
@@ -205,17 +222,14 @@ public class Pendu extends Application {
         maVbox.getChildren().add(this.bJouer);
         VBox.setMargin(this.bJouer, new Insets(15));                      // permet de donner une marge à notre bouton
         
-        ToggleGroup toogle= new ToggleGroup();    
+        ToggleGroup toogle= new ToggleGroup();                      //crée un toogle group dans lequel va etre mis les quatre radio bouton
         this.radio1Niveau=new RadioButton("Facile");
         this.radio2Niveau=new RadioButton("Moyen");
         this.radio3Niveau=new RadioButton("Difficile");
         this.radio4Niveau=new RadioButton("Expert");
         // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
         radio1Niveau.setToggleGroup(toogle);radio2Niveau.setToggleGroup(toogle);radio3Niveau.setToggleGroup(toogle);radio4Niveau.setToggleGroup(toogle);
-        //radio1Niveau.setOnAction(new ControleurNiveau(modelePendu));
-        //radio2Niveau.setOnAction(new ControleurNiveau(modelePendu));
-        //radio3Niveau.setOnAction(new ControleurNiveau(modelePendu));
-        //radio4Niveau.setOnAction(new ControleurNiveau(modelePendu));
+
         
         VBox conteneurNiveau= new VBox();
         conteneurNiveau.getChildren().addAll(radio1Niveau,radio2Niveau,radio3Niveau,radio4Niveau);
@@ -228,6 +242,10 @@ public class Pendu extends Application {
     }
 
 
+    /**
+     * va me permettre de recuperer le niveau du jeu
+     * @return un String indiquant le niveau de jeu
+     */
     private String getDifText(){
         return this.radio1Niveau.isSelected() ? "FACILE" : this.radio2Niveau.isSelected() ? "Moyen" : this.radio3Niveau.isSelected() ? "diffcile" : "Expert" ;
     }
@@ -252,15 +270,15 @@ public class Pendu extends Application {
         this.panelCentral.getChildren().add(fenetreAccueil());
     }
     
+    /**
+     * Permet de lancer la fentre de jeu
+     */
     public void modeJeu(){
         this.panelCentral.getChildren().clear();
-        //System.out.println("njn"+this.panelCentral.getChildren());
         this.panelCentral.getChildren().add(fenetreJeu());
     }
     
-    public void modeParametres(){
-        // A implémenter
-    }
+
 
     /** lance une partie */
     public void lancePartie(){
@@ -275,41 +293,50 @@ public class Pendu extends Application {
         //this.modelePendu.maj
         System.out.println(this.modelePendu.getMotATrouve());
         this.motCrypte.setText((this.modelePendu.getMotCrypte()));
+
+        double totalLettre = this.modelePendu.getMotATrouve().length();
+        double lettreTrouve = totalLettre - this.modelePendu.getNbErreursRestants();
+        this.pg.setProgress(lettreTrouve / totalLettre);
         
         if (this.modelePendu.gagne()){this.popUpMessageGagne().showAndWait();}
         else if(this.modelePendu.perdu()){this.popUpMessagePerdu().showAndWait();}
     }
 
     /**
-     * accesseur du chronomètre (pour les controleur du jeu)
-     * @return le chronomètre du jeu
+     * donne une alert indicant qu'une partie est en cours
+     * @return une alert
      */
-    public Chronometre getChrono(){
-        // A implémenter
-        return null; // A enlever
-    }
-
     public Alert popUpPartieEnCours(){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"La partie est en cours!\n Etes-vous sûr de l'interrompre ?", ButtonType.YES, ButtonType.NO);
         alert.setTitle("Attention");
         return alert;
     }
         
+    /**
+     * alert donnant les regler du jeu
+     * @return alert
+     */
     public Alert popUpReglesDuJeu(){
-        // A implementer
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"il faut trouver toutes les lettre du mot avant que la \n personne sur l'image soit pendu.",ButtonType.YES, ButtonType.NO);
         return alert;
     }
     
+    /**
+     * une alert disnat que le joueur a gagner
+     * @return alert
+     */
     public Alert popUpMessageGagne(){
-        // A implementer
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de trouver le mot \n voulez-vous un nouveaux mot ?",ButtonType.YES, ButtonType.NO);        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de trouver le mot ",ButtonType.YES, ButtonType.NO);        
         return alert;
     }
     
-    public Alert popUpMessagePerdu(){
-        // A implementer    
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de perdre le mot était : "+this.modelePendu.getMotATrouve() + " \n voulez-vous un nouveaux mot ?",ButtonType.YES, ButtonType.NO);
+    /**
+     * alert disant que le joueur a perdu et donnant le mot qu'il fallait trouver
+     * @return alert
+     */
+    public Alert popUpMessagePerdu(){  
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de perdre le mot était : "+this.modelePendu.getMotATrouve() ,ButtonType.YES, ButtonType.NO);
         return alert;
     }
 

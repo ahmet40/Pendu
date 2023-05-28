@@ -31,15 +31,7 @@ public class ControlleurRejouer implements EventHandler<ActionEvent> {
      */
     @Override
     public void handle(ActionEvent actionEvent) {
-        Optional<ButtonType> reponse = this.vuePendu.popUpPartieEnCours().showAndWait(); // on lance la fenêtre popup et on attends la réponse
-        // si la réponse est oui
-        if (reponse.isPresent() && reponse.get().equals(ButtonType.YES)){
-            System.out.println("Ok !");
-            this.vuePendu.lancePartie();
-        }
-        else{
-            this.vuePendu.modeAccueil();
-            System.out.println("D'ac !");
-        }
+        this.modelePendu.setMotATrouver();
+        this.vuePendu.lancePartie();
     }
 }
