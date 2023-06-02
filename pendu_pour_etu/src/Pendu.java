@@ -95,6 +95,8 @@ public class Pendu extends Application {
     private RadioButton radio2Niveau; 
     private RadioButton radio3Niveau; 
     private RadioButton radio4Niveau; 
+    private Color couleurDeFond;
+
     /**
      * initialise les attributs (créer le modèle, charge les images, crée le chrono ...)
      */
@@ -106,6 +108,34 @@ public class Pendu extends Application {
         this.panelCentral=new VBox();
         
         this.chargerImages("img");
+
+
+        ImageView imgInfo=new ImageView(new Image(new File("img/info.png").toURI().toString()));    //permet de charger une image
+        imgInfo.setFitHeight(50);imgInfo.setFitWidth(50);                                           // pemet de changer la largeur et hauteur de l'image
+
+        ImageView imgParametres=new ImageView(new Image(new File("img/parametres.png").toURI().toString()));
+        imgParametres.setFitHeight(50);imgParametres.setFitWidth(50);
+
+        ImageView imgHome=new ImageView(new Image(new File("img/home.png").toURI().toString()));
+        imgHome.setFitHeight(50);imgHome.setFitWidth(50);
+
+        this.boutonMaison=new Button();
+        this.boutonMaison.setGraphic(imgHome);                                      // affect au bouton une image
+        this.boutonMaison.setOnAction(new RetourAccueil(modelePendu, this));
+        this.boutonMaison.setTooltip(new Tooltip("retour maison"));
+        this.boutonMaison.setDisable(true);
+
+        this.boutonParametres=new Button("");
+        this.boutonParametres.setGraphic(imgParametres);
+        this.boutonParametres.setOnAction(new ControleurParametre(this));
+        this.boutonParametres.setTooltip(new Tooltip("Parametre"));
+
+
+        this.boutonInformation=new Button();
+        this.boutonInformation.setGraphic(imgInfo);
+        this.boutonInformation.setOnAction(new ControleurInfos(this));
+        this.boutonInformation.setTooltip(new Tooltip("Information"));
+
     }
 
     /**
@@ -127,26 +157,7 @@ public class Pendu extends Application {
     private Pane titre(){        
         BorderPane banniere = new BorderPane();
         Text leTexte=new Text("Jeu Du Pendu");
-        ImageView imgInfo=new ImageView(new Image(new File("img/info.png").toURI().toString()));    //permet de charger une image
-        imgInfo.setFitHeight(50);imgInfo.setFitWidth(50);                                           // pemet de changer la largeur et hauteur de l'image
-
-        ImageView imgParametres=new ImageView(new Image(new File("img/parametres.png").toURI().toString()));
-        imgParametres.setFitHeight(50);imgParametres.setFitWidth(50);
-
-        ImageView imgHome=new ImageView(new Image(new File("img/home.png").toURI().toString()));
-        imgHome.setFitHeight(50);imgHome.setFitWidth(50);
-
-        this.boutonMaison=new Button();
-        this.boutonMaison.setGraphic(imgHome);                                      // affect au bouton une image
-        this.boutonMaison.setOnAction(new RetourAccueil(modelePendu, this));
-
-        this.boutonParametres=new Button("");
-        this.boutonParametres.setGraphic(imgParametres);
-
-        this.boutonInformation=new Button();
-        this.boutonInformation.setGraphic(imgInfo);
-        this.boutonInformation.setOnAction(new ControleurInfos(this));
-
+        
 
         HBox hboxboutons=new HBox();
         hboxboutons.getChildren().addAll(boutonMaison,boutonParametres,boutonInformation);
@@ -167,11 +178,12 @@ public class Pendu extends Application {
         TitledPane res = new TitledPane("Chronometre",chrono);
         return res;
     }
-     /**
+    /**
     / * @return la fenêtre de jeu avec le mot crypté, l'image, la barre
     / *         de progression et le clavier
     / */
      private BorderPane fenetreJeu(){
+        this.boutonMaison.setDisable(false);
         this.motCrypte= new Text(this.modelePendu.getMotCrypte());
         BorderPane res = new BorderPane();
         VBox left=new VBox();
@@ -179,7 +191,7 @@ public class Pendu extends Application {
         left.getChildren().add(motCrypte);
         this.dessin=new ImageView(this.lesImages.get(0));
         left.getChildren().add(this.dessin);
-        this.pg=new ProgressBar(0);
+
         left.getChildren().add(pg);
         this.clavier=new Clavier("ABCDEFGHIJKLMNOPQRSTUVWXYZ-",new ControleurLettres(modelePendu, this));       // cree le clavier
         left.getChildren().add(clavier);                
@@ -214,6 +226,7 @@ public class Pendu extends Application {
     / * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
     / */
     private Pane fenetreAccueil(){  
+        //his.boutonMaison.setDisable(true);
         Pane res = new Pane();
 
         VBox maVbox=new VBox();
@@ -229,7 +242,11 @@ public class Pendu extends Application {
         this.radio4Niveau=new RadioButton("Expert");
         // permet d'ajouter les quatre boutons dans le meme toogle ce qui va nous empecher d'appuyer sur les quatres boutons à la fois
         radio1Niveau.setToggleGroup(toogle);radio2Niveau.setToggleGroup(toogle);radio3Niveau.setToggleGroup(toogle);radio4Niveau.setToggleGroup(toogle);
-
+        radio1Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        radio2Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        radio3Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        radio4Niveau.setOnAction(new ControleurNiveau(modelePendu));
+        
         
         VBox conteneurNiveau= new VBox();
         conteneurNiveau.getChildren().addAll(radio1Niveau,radio2Niveau,radio3Niveau,radio4Niveau);
@@ -240,6 +257,38 @@ public class Pendu extends Application {
         res.getChildren().add(maVbox);
         return res;
     }
+
+    /**
+     * Permet de changer la couleur du panel central et de la mettre à la couleur c donné en parmatre
+     * @param c une couleur de la Color
+     */
+    public void setCouleurDeFond(Color c){
+        this.couleurDeFond=c;
+    }
+
+    /**
+     * Permet de gerer la page de parametre
+     * @return une VBox
+     */
+    public VBox fenetreParametre(){
+        this.boutonMaison.setDisable(true);
+        VBox vboxCouleur=new VBox();
+        Button b=new Button("Valider");
+        b.setOnAction(new ControleurRetourJeu(this));
+        ColorPicker c= new ColorPicker();
+        c.valueProperty().addListener((observable, oldValue, newValue) -> {
+            setCouleurDeFond(newValue);
+        });
+        vboxCouleur.getChildren().add(c);
+        HBox maHbox=new HBox();
+        Label l=new Label("Veuillez choisir la couleur de fond : ");
+        maHbox.getChildren().addAll(l,c);
+        vboxCouleur.getChildren().addAll(maHbox,b);
+        vboxCouleur.setPadding(new Insets(30));
+        
+        return vboxCouleur;
+    }
+
 
 
     /**
@@ -267,6 +316,9 @@ public class Pendu extends Application {
      */
     public void modeAccueil(){
         this.panelCentral.getChildren().clear();
+        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
+        this.boutonMaison.setDisable(true);
+
         this.panelCentral.getChildren().add(fenetreAccueil());
     }
     
@@ -275,9 +327,22 @@ public class Pendu extends Application {
      */
     public void modeJeu(){
         this.panelCentral.getChildren().clear();
+        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
+
+        this.pg=new ProgressBar(0);
         this.panelCentral.getChildren().add(fenetreJeu());
     }
     
+
+    /**
+     * Permet de lancer la fenetre de parametre
+     */
+    public void modeParametre(){
+        this.panelCentral.getChildren().clear();
+        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
+        this.panelCentral.getChildren().add(fenetreParametre());
+    }
+
 
 
     /** lance une partie */
@@ -295,20 +360,25 @@ public class Pendu extends Application {
         this.motCrypte.setText((this.modelePendu.getMotCrypte()));
 
         double totalLettre = this.modelePendu.getMotATrouve().length();
-        double lettreTrouve =  this.modelePendu.getNbErreursRestants()-totalLettre ;
+        double lettreTrouve =  this.modelePendu.getMotATrouve().length()-this.modelePendu.getNbLettresRestantes() ;
         this.pg.setProgress(lettreTrouve / totalLettre);
         
         if (this.modelePendu.gagne()){
+            this.chrono.stop();
             this.popUpMessageGagne().showAndWait();             // va activer la pop-up et va attendre une action du joueur
             for (Button b:this.clavier.getClavier()){           // va desactiver toutes les touches du clavier jusqu'au nv mot
                 b.setDisable(true);
             }
+            
+
         }
         else if(this.modelePendu.perdu()){
+            this.chrono.stop();
             this.popUpMessagePerdu().showAndWait();
             for (Button b:this.clavier.getClavier()){
                     b.setDisable(true);
             }
+            
         }
     }
 
