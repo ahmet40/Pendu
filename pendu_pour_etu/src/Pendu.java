@@ -95,6 +95,7 @@ public class Pendu extends Application {
     private RadioButton radio2Niveau; 
     private RadioButton radio3Niveau; 
     private RadioButton radio4Niveau; 
+    private Color couleurDeFond;
     /**
      * initialise les attributs (créer le modèle, charge les images, crée le chrono ...)
      */
@@ -139,9 +140,11 @@ public class Pendu extends Application {
         this.boutonMaison=new Button();
         this.boutonMaison.setGraphic(imgHome);                                      // affect au bouton une image
         this.boutonMaison.setOnAction(new RetourAccueil(modelePendu, this));
+        this.boutonMaison.setTooltip(new Tooltip("retour maison"));
 
         this.boutonParametres=new Button("");
         this.boutonParametres.setGraphic(imgParametres);
+        this.boutonParametres.setOnAction(new ControleurParametre(this));
 
         this.boutonInformation=new Button();
         this.boutonInformation.setGraphic(imgInfo);
@@ -171,7 +174,7 @@ public class Pendu extends Application {
     / * @return la fenêtre de jeu avec le mot crypté, l'image, la barre
     / *         de progression et le clavier
     / */
-     private BorderPane fenetreJeu(){
+    public BorderPane fenetreJeu(){
         this.motCrypte= new Text(this.modelePendu.getMotCrypte());
         BorderPane res = new BorderPane();
         VBox left=new VBox();
@@ -206,9 +209,33 @@ public class Pendu extends Application {
         return res;
     } 
 
-
+    /**
+     * Fait le calcule pour changer l'image
+     */
     public void changerImage(){
         this.dessin.setImage(lesImages.get(modelePendu.getNbErreursMax()-modelePendu.getNbErreursRestants()));
+    }
+
+    public void setCouleurDeFond(Color c){
+        this.couleurDeFond=c;
+    }
+
+    public VBox fenetreParametre(){
+        VBox vboxCouleur=new VBox();
+        Button b=new Button("Valider");
+        b.setOnAction(new ControleurCouleur(this));
+        ColorPicker c= new ColorPicker();
+        c.valueProperty().addListener((observable, oldValue, newValue) -> {
+            setCouleurDeFond(newValue);
+        });
+        vboxCouleur.getChildren().add(c);
+        HBox maHbox=new HBox();
+        Label l=new Label("Veuillez choisir la couleur de fond : ");
+        maHbox.getChildren().addAll(l,c);
+        vboxCouleur.getChildren().addAll(maHbox,b);
+        vboxCouleur.setPadding(new Insets(30));
+        
+        return vboxCouleur;
     }
      /**
     / * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
@@ -261,12 +288,14 @@ public class Pendu extends Application {
             this.lesImages.add(new Image(file.toURI().toString()));
         }
     }
+    
 
     /**
      *  Pemet de modifier le panel central de la page d'accueil
      */
     public void modeAccueil(){
         this.panelCentral.getChildren().clear();
+        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
         this.panelCentral.getChildren().add(fenetreAccueil());
     }
     
@@ -275,9 +304,17 @@ public class Pendu extends Application {
      */
     public void modeJeu(){
         this.panelCentral.getChildren().clear();
+        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
         this.panelCentral.getChildren().add(fenetreJeu());
     }
-    
+    /**
+     * Permet de lancer la fenetre de parametre
+     */
+    public void modeParametre(){
+        this.panelCentral.getChildren().clear();
+        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
+        this.panelCentral.getChildren().add(fenetreParametre());
+    }
 
 
     /** lance une partie */
