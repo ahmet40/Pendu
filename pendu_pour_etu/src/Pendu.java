@@ -1,6 +1,5 @@
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,16 +9,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.scene.control.ButtonBar.ButtonData ;
-
 import java.util.List;
-
-import javax.tools.Tool;
-
-import java.util.Arrays;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Optional;
+
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+
 
 
 /**
@@ -96,13 +94,18 @@ public class Pendu extends Application {
     private RadioButton radio3Niveau; 
     private RadioButton radio4Niveau; 
     private Color couleurDeFond;
+    private String gestionnaireDeFichier;
 
     /**
      * initialise les attributs (créer le modèle, charge les images, crée le chrono ...)
      */
     @Override
     public void init() {
-        this.modelePendu = new MotMystere("/usr/share/dict/french", 3, 10, MotMystere.FACILE, 10);
+        this.gestionnaireDeFichier="/usr/share/dict/";
+        this.modelePendu = new MotMystere(gestionnaireDeFichier+"french", 3, 10, MotMystere.FACILE, 10);
+        // on va affecter un fichier de mot par default que vous pourrez changez dans les paramtres
+
+        //fileCh
         this.lesImages = new ArrayList<Image>();
         //this.chargerImages("./img");
         this.panelCentral=new VBox();
@@ -176,6 +179,7 @@ public class Pendu extends Application {
         this.chrono=new Chronometre();
         this.chrono.start();
         TitledPane res = new TitledPane("Chronometre",chrono);
+        res.setCollapsible(false);
         return res;
     }
     /**
@@ -184,6 +188,7 @@ public class Pendu extends Application {
     / */
      private BorderPane fenetreJeu(){
         this.boutonMaison.setDisable(false);
+        this.boutonParametres.setDisable(true);
         this.motCrypte= new Text(this.modelePendu.getMotCrypte());
         BorderPane res = new BorderPane();
         VBox left=new VBox();
@@ -226,7 +231,8 @@ public class Pendu extends Application {
     / * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
     / */
     private Pane fenetreAccueil(){  
-        //his.boutonMaison.setDisable(true);
+        this.boutonMaison.setDisable(true);
+        this.boutonParametres.setDisable(false);
         Pane res = new Pane();
 
         VBox maVbox=new VBox();
@@ -264,6 +270,24 @@ public class Pendu extends Application {
      */
     public void setCouleurDeFond(Color c){
         this.couleurDeFond=c;
+        this.panelCentral.setBackground(new Background(new BackgroundFill(this.couleurDeFond,null,null)));
+    }
+
+
+
+
+    /**
+     * Cette fonction va nous ouvrir le gestionnaire de fichier et va attendre que vous choisiez un fichier de mot uen fois le fichier choisit vous pouvez jouer avec les mots qui sont dans ce fichier
+     */
+    public void ouvrirGestionnaireFichiers() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(gestionnaireDeFichier));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            System.out.println("Fichier sélectionné : " + selectedFile.getAbsolutePath());
+            this.gestionnaireDeFichier=selectedFile.getAbsolutePath();
+            this.modelePendu = new MotMystere(gestionnaireDeFichier, 3, 10, MotMystere.FACILE, 10);
+        }
     }
 
     /**
@@ -271,21 +295,25 @@ public class Pendu extends Application {
      * @return une VBox
      */
     public VBox fenetreParametre(){
-        this.boutonMaison.setDisable(true);
+        this.boutonMaison.setDisable(false);
+        this.boutonParametres.setDisable(true);
         VBox vboxCouleur=new VBox();
-        Button b=new Button("Valider");
-        b.setOnAction(new ControleurRetourJeu(this));
+
+        Button button = new Button("gestionnaire de fichier");
+        button.setOnAction(new ControleurGestionFichier(this));
+
+ 
         ColorPicker c= new ColorPicker();
-        c.valueProperty().addListener((observable, oldValue, newValue) -> {
-            setCouleurDeFond(newValue);
+        c.setOnAction(e -> {
+            setCouleurDeFond(c.getValue());
+            
         });
         vboxCouleur.getChildren().add(c);
         HBox maHbox=new HBox();
         Label l=new Label("Veuillez choisir la couleur de fond : ");
         maHbox.getChildren().addAll(l,c);
-        vboxCouleur.getChildren().addAll(maHbox,b);
+        vboxCouleur.getChildren().addAll(maHbox,button);
         vboxCouleur.setPadding(new Insets(30));
-        
         return vboxCouleur;
     }
 
@@ -316,9 +344,6 @@ public class Pendu extends Application {
      */
     public void modeAccueil(){
         this.panelCentral.getChildren().clear();
-        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
-        this.boutonMaison.setDisable(true);
-
         this.panelCentral.getChildren().add(fenetreAccueil());
     }
     
@@ -327,8 +352,6 @@ public class Pendu extends Application {
      */
     public void modeJeu(){
         this.panelCentral.getChildren().clear();
-        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
-
         this.pg=new ProgressBar(0);
         this.panelCentral.getChildren().add(fenetreJeu());
     }
@@ -339,7 +362,7 @@ public class Pendu extends Application {
      */
     public void modeParametre(){
         this.panelCentral.getChildren().clear();
-        this.panelCentral.setBackground(new Background(new BackgroundFill(couleurDeFond,null,null)));
+        
         this.panelCentral.getChildren().add(fenetreParametre());
     }
 
@@ -365,20 +388,27 @@ public class Pendu extends Application {
         
         if (this.modelePendu.gagne()){
             this.chrono.stop();
-            this.popUpMessageGagne().showAndWait();             // va activer la pop-up et va attendre une action du joueur
-            for (Button b:this.clavier.getClavier()){           // va desactiver toutes les touches du clavier jusqu'au nv mot
-                b.setDisable(true);
-            }
             
-
+            Optional<ButtonType> reponse = this.popUpMessageGagne().showAndWait();             // va activer la pop-up et va attendre une action du joueur
+            if (reponse.isPresent() && reponse.get().equals(ButtonType.YES)){
+                this.modelePendu.setMotATrouver();
+                lancePartie();
+            }
+            else if (reponse.isPresent() && reponse.get().equals(ButtonType.NO)){
+                modeAccueil();
+            }          
         }
         else if(this.modelePendu.perdu()){
             this.chrono.stop();
-            this.popUpMessagePerdu().showAndWait();
-            for (Button b:this.clavier.getClavier()){
-                    b.setDisable(true);
-            }
             
+            Optional<ButtonType> reponse = this.popUpMessagePerdu().showAndWait();
+            if (reponse.isPresent() && reponse.get().equals(ButtonType.YES)){
+                this.modelePendu.setMotATrouver();
+                lancePartie();
+            }
+            else if (reponse.isPresent() && reponse.get().equals(ButtonType.NO)){
+                modeAccueil();
+            }
         }
     }
 
@@ -389,6 +419,8 @@ public class Pendu extends Application {
     public Alert popUpPartieEnCours(){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"La partie est en cours!\n Etes-vous sûr de l'interrompre ?", ButtonType.YES, ButtonType.NO);
         alert.setTitle("Attention");
+        //Optional[]
+       // ButtonType.YES.setOnAction()
         return alert;
     }
         
@@ -407,7 +439,8 @@ public class Pendu extends Application {
      * @return alert
      */
     public Alert popUpMessageGagne(){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de trouver le mot ",ButtonType.YES, ButtonType.NO);        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de trouver le mot \n voulez-vous rejouer",ButtonType.YES, ButtonType.NO);   
+            
         return alert;
     }
     
@@ -416,7 +449,7 @@ public class Pendu extends Application {
      * @return alert
      */
     public Alert popUpMessagePerdu(){  
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de perdre le mot était : "+this.modelePendu.getMotATrouve() ,ButtonType.YES, ButtonType.NO);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,"Vous venez de perdre le mot était : "+this.modelePendu.getMotATrouve()+"\n voulez-vous rejouer" ,ButtonType.YES, ButtonType.NO);
         return alert;
     }
 

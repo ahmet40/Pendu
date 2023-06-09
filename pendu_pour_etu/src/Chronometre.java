@@ -3,8 +3,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
+
 
 
 /**
